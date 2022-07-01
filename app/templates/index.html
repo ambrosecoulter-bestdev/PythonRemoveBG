@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% include "acsidepanel.html" %}
+{% block app_content %}
+
+<div id="rightcolumnwrapper">
+
+<p id="devicelistheading">Devices</p>
+    <div id="deviseswrapper">
+        {% include "devicecards.html" %}
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <script type="text/javascript">
+        
+        var updatingtemp = false
+        var newtemp = 0
+        // NEW SLIDER INPUT
+        var element1 = document.querySelector("#slideprewrap")
+        //ON SCROLL FINISH + 500MS TRIGGER SEND COMMAND
+        $('#slideprewrap').scroll($.debounce( 500, function(){
+            console.log("scroll done")
+            rangeSlideUpdated(newtemp, 'climate.lounge_room');
+        }));
+        //UPDATE TEMP VALUE ON SCROLL
+        element1.addEventListener("scroll", function(){
+            if(numbers[Math.floor(element1.scrollLeft/189)]){
+                document.querySelector("#climatemiddle > p").innerHTML = numbers[Math.floor(element1.scrollLeft/189)] + '<span id="degreesymbol">°</span>';
+                newtemp = numbers[Math.floor(element1.scrollLeft/189)]
+                updatingtemp = true
+            }
+        });
+
+
+        
+
+        //Send new temp to HA
+        function rangeSlideUpdated(value, id) {
+            console.log(value, id)
+            document.querySelector("#climatemiddle > p").style.color = "#A3A6FB"
+            // WARNING: For POST requests, body is set to null by browsers.
+            var settings = {
+                "url": "http://192.168.68.104:5000/send_command/climate/set_temperature",
+                "method": "POST",
+                "timeout": 0,
+                "dataType": "json",
+                "contentType": "application/json",
+                "data": JSON.stringify({
+                    "entity_id": id,
+                    "temperature": value
+                }),
+                }
+                $.ajax(settings).success(function (response) {
+                    element1 = document.querySelector("#slideprewrap")
+                    document.querySelector("#climatemiddle > p").style.color = "#ffffff"
+                    currenttemp = response[0]['temperature']
+                    updatingtemp = false
+                    });
+            }
+
+        //Set Climate MODE
+        function setClimateMode(value, id){
+            console.log(value, id)
+            var settings = {
+                "url": "http://192.168.68.104:5000/send_command/climate/set_hvac_mode",
+                "method": "POST",
+                "timeout": 0,
+                "dataType": "json",
+                "contentType": "application/json",
+                "data": JSON.stringify({
+                    "entity_id": id,
+                    "hvac_mode": value
+                }),
+                }
+                $.ajax(settings).done(function (response) {
+                    console.log(response);
+                    //REFRESH MODE BUTTONS
+                    
+                    $.each(response[0]['attributes']['hvac_modes'], function(index, value) {
+                        var modediv = document.querySelector('#'+value)
+                        if(modediv){
+                            if(response[0]['state'] == value){
+                                modediv.className = "modebuttonsactive";
+                            }
+                            else{
+                                modediv.className = "modebuttons";
+                            }
+                        }
+                        
+                    });
+                    });
+            }
+
+
+            function changeFanSpeed(id, currentspeed){
+                var newspeed = ''
+                if(currentspeed == 'low'){
+                    newspeed = 'medium'
+                }
+                if(currentspeed == 'medium'){
+                    newspeed = 'high'
+                }
+                if(currentspeed == 'high'){
+                    newspeed = 'low'
+                }
+                var fanspeedelement = document.querySelector("#currentfanmode");
+                $(fanspeedelement).animate({
+                            opacity: 0
+                        });
+                var settings = {
+                "url": "http://192.168.68.104:5000/send_command/climate/set_fan_mode",
+                "method": "POST",
+                "timeout": 0,
+                "dataType": "json",
+                "contentType": "application/json",
+                "data": JSON.stringify({
+                    "entity_id": id,
+                    "fan_mode": newspeed
+                }),
+                }
+                $.ajax(settings).done(function (response) {
+                    //UPDATE FAN SPEED
+                    console.log(response);
+                    var fanspeedelement = document.querySelector("#currentfanmode");
+                    if(fanspeedelement){
+                        document.querySelector("#changefanmode").setAttribute( "onClick", "changeFanSpeed('"+response[0]['entity_id']+"', '"+response[0]['attributes']['fan_mode']+"');" );
+                        fanspeedelement.innerText = response[0]['attributes']['fan_mode']
+                        fanmode = response[0]['attributes']['fan_mode']
+                        $(fanspeedelement).animate({
+                            opacity: 1
+                        });
+
+                    }
+                    else{
+
+                    }
+
+                    });
+            }
+
+
+            //TURN ON OR OFF
+            function toggleOnOff(value, id){
+            console.log(value, id)
+            var togglestatus = ''
+            if(value != 'off'){
+                togglestatus = 'off'
+            }
+            if(value == 'off'){
+                togglestatus = 'cool'
+            }
+            var fanspeedelement = document.querySelector("#currentfanmode");
+                $(fanspeedelement).animate({
+                            opacity: 0
+                        });
+            var settings = {
+                "url": "http://192.168.68.104:5000/send_command/climate/set_hvac_mode",
+                "method": "POST",
+                "timeout": 0,
+                "dataType": "json",
+                "contentType": "application/json",
+                "data": JSON.stringify({
+                    "entity_id": id,
+                    "hvac_mode": togglestatus
+                }),
+                }
+                $.ajax(settings).done(function (response) {
+                    console.log(response);
+                    if(response[0]['state'] == 'off'){
+                        document.querySelector("#toggleOnOff").className = "modebuttons"
+                        document.querySelector("#toggleOnOff").setAttribute( "onClick", "toggleOnOff('off', '"+response[0]['entity_id']+"');" );
+                        document.querySelector("#changefanmode > i").setAttribute( "style", "");
+                        document.querySelector("#currentfanmode").innerText = "off"
+                        $(fanspeedelement).animate({
+                            opacity: 1
+                        });
+                    }
+                    else{
+                        document.querySelector("#toggleOnOff").className = "modebuttonsactive"
+                        document.querySelector("#toggleOnOff").setAttribute( "onClick", "toggleOnOff('"+response[0]['state']+"', '"+response[0]['entity_id']+"');" );
+                        document.querySelector("#changefanmode > i").setAttribute( "style", "-webkit-animation: spin 4s infinite linear;");
+                        document.querySelector("#currentfanmode").innerText = response[0]['attributes']['fan_mode']
+                        $(fanspeedelement).animate({
+                            opacity: 1
+                        });
+                    }
+                    
+                    $.each(response[0]['attributes']['hvac_modes'], function(index, value) {
+                        var modediv = document.querySelector('#'+value)
+                        if(modediv){
+                            if(response[0]['state'] == value){
+                                modediv.className = "modebuttonsactive";
+                            }
+                            else{
+                                modediv.className = "modebuttons";
+                            }
+                        }
+                        
+                    });
+                    });
+            }
+            
+
+            //POLLING FOR CLIMATE
+
+            
+
+
+
+            
+    </script>
+
+<script src="/static/polling.js" crossorigin="anonymous"></script>
+{% endblock %}
+

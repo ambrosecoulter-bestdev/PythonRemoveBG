@@ -1,0 +1,54 @@
+{% extends 'bootstrap/base.html' %}
+
+
+{% block title %}
+    {% if title %}
+        {{ title }} - Moria
+    {% else %}
+        Moira
+    {% endif %}
+{% endblock %}
+
+
+  {% block head %}
+  {{ turbo() }}
+  <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width,viewport-fit=cover" initial-scale="1" maximum-scale="1.0", user-scalable="0">
+<link rel="manifest" href="/static/manifest.json" />
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="/static/debounce.js" crossorigin="anonymous"></script>
+<script src="/static/wait.js" crossorigin="anonymous"></script>
+<script src="https://rawgit.com/moment/moment/2.2.1/min/moment.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+  />
+
+
+    {% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<link rel="stylesheet" href="https://s3.amazonaws.com/appforest_uf/f1634678462647x881037723848061300/fonts.css">
+<link rel="stylesheet" href="https://s3.amazonaws.com/appforest_uf/f1634678299172x238873996448167200/fonts.css">
+<script src="https://kit.fontawesome.com/326c45e84f.js" crossorigin="anonymous"></script>
+<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+    
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-info" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {# application content needs to be provided in the app_content block #}
+        {% block app_content %}{% endblock %}
+   
+{% endblock %}
