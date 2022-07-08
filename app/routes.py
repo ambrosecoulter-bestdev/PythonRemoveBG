@@ -56,19 +56,46 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 # Routes
 ###
 
-@app.route('/<filename>')
+@app.route('/')
 @app.route('/index')
-def index(filename):
-    input_path = 'app/static/'+filename
-    output_path = os.path.join(basedir, 'static/output/output'+str(random.randint(0,100))+'.png')
+def index():
+    return render_template('index.html')
 
-    with open(input_path, 'rb') as i:
-        with open(output_path, 'wb') as o:
-            input = i.read()
-            output = remove(input, alpha_matting=True)
-            o.write(output)
 
-    return send_file(output_path, mimetype='image/png')
+
+
+
+
+
+
+
+
+###INFERENCE API
+@app.route('/inference', methods=['GET', 'POST'])
+def inference():
+    if request.method == 'POST':
+        #Upload image
+        image = request.files.get('file')
+        image.save(os.path.join(basedir, 'static/input-uploaded/', image.filename))
+        
+        input_path ='app/static/input-uploaded/'+image.filename
+        output_path = 'app/static/output/'+image.filename
+
+        with open(input_path, 'rb') as i:
+            with open(output_path, 'wb') as o:
+                input = i.read()
+                output = remove(input, alpha_matting=True)
+                o.write(output)
+
+        return (output_path)
+###
+
+
+
+
+
+
+
 
 
 
@@ -87,7 +114,7 @@ def testpixel():
 
         data = np.array(im)   # "data" is a height x width x 4 numpy array
         red, green, blue, alpha = data.T # Temporarily unpack the bands for readability
-
+        
         other = (alpha != 0)
         data[..., :-1][other.T] = (255, 255, 255) # Transpose back needed
 
@@ -98,5 +125,6 @@ def testpixel():
         
 
         im2 = Image.fromarray(data)
+        im2.convert('RGB')
         im2.save(os.path.join(basedir, 'static/mask_output/output_'+filename), "PNG")
     return('Completed')
