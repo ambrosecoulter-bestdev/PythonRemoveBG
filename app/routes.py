@@ -79,8 +79,8 @@ def inference():
         image = request.files.get('file')
         image.save(os.path.join(basedir, 'static/input-uploaded/', image.filename))
         
-        input_path ='app/static/input-uploaded/'+image.filename
-        output_path = 'app/static/output/'+image.filename
+        input_path = os.path.join(basedir, 'static/input-uploaded/', image.filename)
+        output_path = os.path.join(basedir, 'static/output/', image.filename)
 
         with open(input_path, 'rb') as i:
             with open(output_path, 'wb') as o:
