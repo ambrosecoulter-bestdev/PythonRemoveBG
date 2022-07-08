@@ -100,7 +100,6 @@ rq==1.9.0
 scikit-image==0.19.1
 scipy==1.7.3
 simple-websocket==0.5.2
-simplejson==3.17.6
 six==1.15.0
 slicerator==1.1.0
 sniffio==1.2.0
