@@ -59,7 +59,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html')
+
+    return render_template('index.html', basedir1=basedir)
 
 
 
