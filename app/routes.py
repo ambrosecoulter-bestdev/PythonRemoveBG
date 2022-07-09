@@ -19,6 +19,7 @@ from rembg import remove, bg
 from PIL import Image
 import glob
 import numpy as np
+import cv2
 
 
 
@@ -84,11 +85,9 @@ def am_inference():
         input_path = os.path.join(basedir, 'static/input-uploaded/', image.filename)
         output_path = os.path.join(basedir, 'static/output/', image.filename)
 
-        with open(input_path, 'rb') as i:
-            with open(output_path, 'wb') as o:
-                input = i.read()
-                output = remove(input, alpha_matting=True)
-                o.write(output)
+        input = cv2.imread(input_path)
+        output = remove(input)
+        cv2.imwrite(output_path, output)
 
         return ('static/output/' + image.filename)
 
@@ -104,11 +103,9 @@ def noam_inference():
         input_path = os.path.join(basedir, 'static/input-uploaded/', image.filename)
         output_path = os.path.join(basedir, 'static/output/', image.filename)
 
-        with open(input_path, 'rb') as i:
-            with open(output_path, 'wb') as o:
-                input = i.read()
-                output = remove(input, alpha_matting=False)
-                o.write(output)
+        input = cv2.imread(input_path)
+        output = remove(input)
+        cv2.imwrite(output_path, output)
 
         return ('static/output/' + image.filename)
 ###
