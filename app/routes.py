@@ -72,8 +72,10 @@ def index():
 
 
 ###INFERENCE API
-@app.route('/inference', methods=['GET', 'POST'])
-def inference():
+
+###INFERENCE W ALPHA MATTING PREPROCESS
+@app.route('/am-inference', methods=['GET', 'POST'])
+def am_inference():
     if request.method == 'POST':
         #Upload image
         image = request.files.get('file')
@@ -88,7 +90,27 @@ def inference():
                 output = remove(input, alpha_matting=True)
                 o.write(output)
 
-        return (output_path)
+        return ('static/output/' + image.filename)
+
+
+###INFERENCE W/O ALPHA MATTING PREPROCESS
+@app.route('/noam-inference', methods=['GET', 'POST'])
+def noam_inference():
+    if request.method == 'POST':
+        #Upload image
+        image = request.files.get('file')
+        image.save(os.path.join(basedir, 'static/input-uploaded/', image.filename))
+        
+        input_path = os.path.join(basedir, 'static/input-uploaded/', image.filename)
+        output_path = os.path.join(basedir, 'static/output/', image.filename)
+
+        with open(input_path, 'rb') as i:
+            with open(output_path, 'wb') as o:
+                input = i.read()
+                output = remove(input, alpha_matting=False)
+                o.write(output)
+
+        return ('static/output/' + image.filename)
 ###
 
 

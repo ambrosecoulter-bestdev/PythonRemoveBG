@@ -47,6 +47,11 @@ img#image {
         <p id="headingtext">Upload a file below and submit for Inference.</p>
     <!--- Input form with file upload and submit button -->
     <form id='uploaddata' method="post" enctype="multipart/form-data">
+        <!--- Dropdown selector with True & False values for alpha matting --->
+        <select id="alphamatting" name="alphamatting">
+            <option value="True">True</option>
+            <option value="False">False</option>
+        </select>
         <input type="file" name="file" />
         <input id='submitforprocess' type="submit" value="Process" />
     </form>
@@ -81,8 +86,10 @@ img#image {
         $('#uploaddata').hide();
         $('#resultsofinference').hide();
         var formData = new FormData($('#uploaddata')[0]);
-        $.ajax({
-            url: '/inference',
+        //If alphamatting dropdown is true
+        if($('#alphamatting').val() == "True") {
+            $.ajax({
+            url: '/am-inference',
             type: 'POST',
             data: formData,
             contentType: false,
@@ -101,6 +108,31 @@ img#image {
                 console.log('Error:', data);
             }
         });
+        }
+        //If alphamatting is False
+        else{
+            $.ajax({
+            url: '/noam-inference',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function (data) {
+                //Remove app/ from returned string
+                var imageurl = data.replace("app/", "");
+                console.log(data);
+                $('#image').attr('src', imageurl);
+                $('.spinner-border').hide();
+                $('#uploaddata').show();
+                $('#resultsofinference').show();
+            },
+            error: function (data) {
+                console.log('Error:', data);
+            }
+        });
+        }
+        
     });
 
     //When color picker value changes, update image background-color with value
