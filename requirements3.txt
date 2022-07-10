@@ -130,7 +130,6 @@ WTForms==2.3.3
 xmltodict==0.13.0
 yarg==0.1.9
 yarl==1.7.2
-youtube-dl==2021.5.16
 zeroconf==0.31.0
 zipp==3.6.0
 zope.interface==5.4.0

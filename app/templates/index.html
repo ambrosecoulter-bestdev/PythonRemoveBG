@@ -97,9 +97,8 @@ img#image {
             processData: false,
             success: function (data) {
                 //Remove app/ from returned string
-                var imageurl = data.replace("app/", "");
                 console.log(data);
-                $('#image').attr('src', imageurl);
+                $('#image').attr('src', 'static/output/'+data);
                 $('.spinner-border').hide();
                 $('#uploaddata').show();
                 $('#resultsofinference').show();
@@ -119,10 +118,8 @@ img#image {
             cache: false,
             processData: false,
             success: function (data) {
-                //Remove app/ from returned string
-                var imageurl = data.replace("app/", "");
                 console.log(data);
-                $('#image').attr('src', imageurl);
+                $('#image').attr('src', 'static/output/'+data);
                 $('.spinner-border').hide();
                 $('#uploaddata').show();
                 $('#resultsofinference').show();

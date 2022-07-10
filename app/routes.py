@@ -6,7 +6,6 @@ from jinja2 import Undefined
 from werkzeug.urls import url_parse
 import uuid
 from datetime import datetime
-from turbo_flask import Turbo
 from requests import get, post
 import json
 import requests
@@ -20,7 +19,6 @@ from PIL import Image
 import glob
 import numpy as np
 import cv2
-
 
 
 
@@ -81,15 +79,20 @@ def am_inference():
         #Upload image
         image = request.files.get('file')
         image.save(os.path.join(basedir, 'static/input-uploaded/', image.filename))
-        
+        imuuid = str(uuid.uuid4())
         input_path = os.path.join(basedir, 'static/input-uploaded/', image.filename)
-        output_path = os.path.join(basedir, 'static/output/', image.filename)
+        output_path = os.path.join(basedir, 'static/output/', imuuid +'.PNG')
 
-        input = cv2.imread(input_path)
-        output = remove(input)
-        cv2.imwrite(output_path, output)
+        input = Image.open(input_path)
+        output = remove(input, alpha_matting=True)
+        output.save(output_path)
 
-        return ('static/output/' + image.filename)
+        #Delete uploaded image
+        os.remove(input_path)
+
+        return (imuuid +'.PNG')
+
+
 
 
 ###INFERENCE W/O ALPHA MATTING PREPROCESS
@@ -99,15 +102,18 @@ def noam_inference():
         #Upload image
         image = request.files.get('file')
         image.save(os.path.join(basedir, 'static/input-uploaded/', image.filename))
-        
+        imuuid = str(uuid.uuid4())
         input_path = os.path.join(basedir, 'static/input-uploaded/', image.filename)
-        output_path = os.path.join(basedir, 'static/output/', image.filename)
+        output_path = os.path.join(basedir, 'static/output/', imuuid +'.PNG')
 
-        input = cv2.imread(input_path)
+        input = Image.open(input_path)
         output = remove(input)
-        cv2.imwrite(output_path, output)
+        output.save(output_path)
 
-        return ('static/output/' + image.filename)
+        #Delete uploaded image
+        os.remove(input_path)
+
+        return (imuuid +'.PNG')
 ###
 
 
